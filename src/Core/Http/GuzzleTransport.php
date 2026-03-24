@@ -16,14 +16,24 @@ namespace KwaiShopSDK\Core\Http;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use KwaiShopSDK\Core\Profile\Config;
+use KwaiShopSDK\Core\Runtime\RuntimeProfile;
 use KwaiShopSDK\Exception\TransportException;
 
 final class GuzzleTransport implements TransportInterface
 {
+    private readonly RuntimeProfile $runtime;
+
     public function __construct(
         private readonly ClientInterface $client,
         private readonly Config $config,
+        ?RuntimeProfile $runtime = null,
     ) {
+        $this->runtime = $runtime ?? RuntimeProfile::detect();
+
+        if ($this->config->autoDetectRuntime() && $this->runtime->shouldEnableSwooleHooks()) {
+            RuntimeProfile::enableSwooleHooks();
+            $this->runtime = RuntimeProfile::detect();
+        }
     }
 
     public function send(string $httpMethod, string $url, array $options = []): array
@@ -31,7 +41,7 @@ final class GuzzleTransport implements TransportInterface
         try {
             $headers = [
                 'Accept' => 'application/json',
-                'User-Agent' => $this->config->userAgent(),
+                'User-Agent' => sprintf('%s (%s)', $this->config->userAgent(), $this->runtime->name()),
             ];
 
             if (isset($options['headers']) && is_array($options['headers'])) {
@@ -43,6 +53,7 @@ final class GuzzleTransport implements TransportInterface
             $transportOptions['timeout'] ??= $this->config->readTimeout();
             $transportOptions['http_errors'] ??= false;
             $transportOptions['headers'] = $headers;
+            $transportOptions = $this->applyRuntimeOptions($transportOptions);
 
             if (array_key_exists('multipart', $transportOptions)) {
                 unset($transportOptions['headers']['Content-Type']);
@@ -58,5 +69,35 @@ final class GuzzleTransport implements TransportInterface
             'headers' => $response->getHeaders(),
             'body' => (string) $response->getBody(),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
+    private function applyRuntimeOptions(array $options): array
+    {
+        if (!$this->config->autoDetectRuntime()) {
+            return $options;
+        }
+
+        if ($this->runtime->shouldReuseConnections()) {
+            $options['headers']['Connection'] ??= 'keep-alive';
+
+            return $options;
+        }
+
+        $options['headers']['Connection'] ??= 'close';
+
+        if (defined('CURLOPT_FORBID_REUSE')) {
+            $options['curl'][CURLOPT_FORBID_REUSE] ??= true;
+        }
+
+        if (defined('CURLOPT_FRESH_CONNECT')) {
+            $options['curl'][CURLOPT_FRESH_CONNECT] ??= true;
+        }
+
+        return $options;
     }
 }

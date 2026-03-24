@@ -31,6 +31,7 @@ final class Config
         private readonly string $signMethod = self::SIGN_METHOD_HMAC_SHA256,
         private readonly float $connectTimeout = 5.0,
         private readonly float $readTimeout = 10.0,
+        private readonly bool $autoDetectRuntime = true,
         private readonly string $userAgent = 'kwaishop-php-sdk/1.0.0-dev',
     ) {
         $this->assertNonEmpty($this->appKey, 'appKey');
@@ -70,6 +71,7 @@ final class Config
             signMethod: (string) ($config['signMethod'] ?? self::SIGN_METHOD_HMAC_SHA256),
             connectTimeout: (float) ($config['connectTimeout'] ?? 5.0),
             readTimeout: (float) ($config['readTimeout'] ?? 10.0),
+            autoDetectRuntime: (bool) ($config['autoDetectRuntime'] ?? true),
             userAgent: (string) ($config['userAgent'] ?? 'kwaishop-php-sdk/1.0.0-dev'),
         );
     }
@@ -136,6 +138,11 @@ final class Config
     public function userAgent(): string
     {
         return $this->userAgent;
+    }
+
+    public function autoDetectRuntime(): bool
+    {
+        return $this->autoDetectRuntime;
     }
 
     private function assertNonEmpty(string $value, string $field): void

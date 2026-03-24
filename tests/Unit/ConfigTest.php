@@ -30,6 +30,7 @@ final class ConfigTest extends TestCase
         self::assertSame('https://openapi.kwaixiaodian.com', $config->baseUrl());
         self::assertSame('https://open.kwaixiaodian.com/oauth/authorize', $config->oauthAuthorizeUrl());
         self::assertSame(Config::SIGN_METHOD_HMAC_SHA256, $config->signMethod());
+        self::assertTrue($config->autoDetectRuntime());
     }
 
     public function testRequiredAppSecretThrowsWhenMissing(): void

@@ -24,6 +24,8 @@
 ## 功能特性
 
 - 支持 PHP `8.1+`
+- 支持 `FPM`
+- 支持 `Swoole Coroutine`
 - 内置 `Guzzle` 传输实现
 - 支持 `MD5` 与 `HMAC_SHA256` 签名
 - 提供统一的 `Config` 配置对象
@@ -74,6 +76,48 @@ $response = $client->rawRequest(
     params: [],
     accessToken: 'your-access-token',
     httpMethod: 'POST',
+);
+```
+
+## 运行环境
+
+本 SDK 以 `FPM` 与 `Swoole Coroutine` 双运行时为目标进行约束设计。
+
+- SDK 核心对象保持无状态，不在静态变量、全局单例中存放请求上下文
+- `KwaiShopClient`、`Config`、请求工厂、响应解析器都可以在多请求场景下安全复用
+- 默认传输层基于 `Guzzle`
+- SDK 会自动识别当前运行时；当检测到 `Swoole Coroutine` 且 hook 未开启时，默认传输层会自动尝试开启 coroutine hook
+- SDK 会自动识别 `FPM / CLI / Swoole` 运行环境并调整连接复用策略：
+- `FPM / CLI` 默认保持连接复用
+- `Swoole / Swoole Coroutine` 默认关闭跨请求连接复用，避免长驻 worker 中复用陈旧连接
+- 如果你的项目已经有自定义协程 HTTP 客户端，也可以直接注入自定义 `TransportInterface` 实现
+
+### Swoole Coroutine 示例
+
+```php
+use KwaiShopSDK\Core\Profile\Config;
+use KwaiShopSDK\KwaiShopClient;
+use Swoole\Runtime;
+
+Runtime::enableCoroutine(true);
+
+$config = new Config(
+    appKey: 'your-app-key',
+    appSecret: 'your-app-secret',
+    signSecret: 'your-sign-secret',
+);
+
+$client = new KwaiShopClient($config);
+```
+
+如果你明确不希望 SDK 自动处理运行时识别，可以关闭：
+
+```php
+$config = new Config(
+    appKey: 'your-app-key',
+    appSecret: 'your-app-secret',
+    signSecret: 'your-sign-secret',
+    autoDetectRuntime: false,
 );
 ```
 
@@ -173,6 +217,7 @@ php tests/Functional/api_call.php call open.seller.order.list '{"pageSize":20,"p
 - 请求工厂
 - 响应解析器
 - 主客户端与声明式 API 入口
+- FPM / Swoole Coroutine 运行时兼容
 - 基础测试与手动调试脚本
 
 后续计划：

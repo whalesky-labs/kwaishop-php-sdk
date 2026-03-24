@@ -9,7 +9,10 @@
         "ecommerce",
         "openapi",
         "sdk",
-        "php"
+        "php",
+        "fpm",
+        "swoole",
+        "coroutine"
     ],
     "homepage": "https://github.com/westng/kwaishop-php-sdk",
     "authors": [

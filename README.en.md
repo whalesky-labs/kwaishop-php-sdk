@@ -24,6 +24,8 @@ Official docs:
 ## Features
 
 - Supports PHP `8.1+`
+- Supports `FPM`
+- Supports `Swoole Coroutine`
 - Built-in `Guzzle` transport implementation
 - Supports `MD5` and `HMAC_SHA256` signing
 - Unified `Config` object
@@ -74,6 +76,48 @@ $response = $client->rawRequest(
     params: [],
     accessToken: 'your-access-token',
     httpMethod: 'POST',
+);
+```
+
+## Runtime Compatibility
+
+This SDK is designed with both `FPM` and `Swoole Coroutine` runtimes in mind.
+
+- Core SDK objects remain stateless and do not store request context in static variables or global singletons
+- `KwaiShopClient`, `Config`, the request factory, and the response parser are safe to reuse across concurrent requests
+- The default transport uses `Guzzle`
+- The SDK auto-detects the current runtime; when it detects `Swoole Coroutine` and hooks are not enabled yet, the default transport will try to enable coroutine hooks automatically
+- The SDK auto-detects `FPM / CLI / Swoole` and adjusts connection reuse strategy automatically:
+- `FPM / CLI` keep connection reuse enabled by default
+- `Swoole / Swoole Coroutine` disable cross-request connection reuse by default to avoid stale reused connections in long-lived workers
+- If your project already has a coroutine-native HTTP client, you can inject a custom `TransportInterface` implementation directly
+
+### Swoole Coroutine Example
+
+```php
+use KwaiShopSDK\Core\Profile\Config;
+use KwaiShopSDK\KwaiShopClient;
+use Swoole\Runtime;
+
+Runtime::enableCoroutine(true);
+
+$config = new Config(
+    appKey: 'your-app-key',
+    appSecret: 'your-app-secret',
+    signSecret: 'your-sign-secret',
+);
+
+$client = new KwaiShopClient($config);
+```
+
+If you explicitly do not want the SDK to adapt the runtime automatically, you can disable it:
+
+```php
+$config = new Config(
+    appKey: 'your-app-key',
+    appSecret: 'your-app-secret',
+    signSecret: 'your-sign-secret',
+    autoDetectRuntime: false,
 );
 ```
 
@@ -173,6 +217,7 @@ Completed:
 - Request factory
 - Response parser
 - Main client and declarative API entry points
+- FPM / Swoole Coroutine runtime compatibility
 - Base tests and manual debug helpers
 
 Planned next:
