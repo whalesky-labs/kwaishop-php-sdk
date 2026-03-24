@@ -1,4 +1,4 @@
-# Kwaishop PHP SDK
+# KwaiShopSDK
 
 [简体中文](README.md) | [English](README.en.md)
 
@@ -10,7 +10,7 @@
 
 ## 概述
 
-在技术蓬勃发展的当下，快手电商开放平台的 Kwaishop API SDK，本应是普惠所有开发者的得力工具，涵盖快手电商相关开放能力，从 Token 获取到请求封装、响应解释，每个环节都暗藏助力高效开发的玄机。
+在技术蓬勃发展的当下，快手电商开放平台的 KwaiShopSDK，本应是普惠所有开发者的得力工具，涵盖快手电商相关开放能力，从 Token 获取到请求封装、响应解释，每个环节都暗藏助力高效开发的玄机。
 
 其本地化设计，理应为开发者开辟便捷通道，无论经验如何，都能借它在 API 调用之路上畅行无阻。可现实却令人咋舌，面对 PHP 这片高手云集、活力满满的领域，官方竟然缺失 PHP 版本的 SDK！
 
@@ -29,8 +29,9 @@
 - 提供统一的 `Config` 配置对象
 - 提供 OAuth 能力：授权地址生成、`code` 换取 token、刷新 token、`client_credentials`
 - 提供统一请求工厂与响应解析器
-- 提供资源式 API 入口：`orders()`、`items()`、`afterSales()`、`logistics()`、`shop()`
-- 提供 `rawRequest()` 作为底层兜底调用能力
+- 提供按文档分类组织的接口实现目录：`src/Api/*`
+- 提供标准请求基座：`get()`、`post()`、`postJson()`、`upload()`
+- 提供 `rawRequest()` 作为网关兜底调用能力
 - 提供 PHPUnit 测试底座与本地手动调试脚本
 
 ## 安装
@@ -46,8 +47,9 @@ composer require westng/kwaishop-php-sdk
 
 declare(strict_types=1);
 
-use Kwaishop\PhpSdk\Config\Config;
-use Kwaishop\PhpSdk\KwaiShopClient;
+use KwaiShopSDK\Core\Profile\Config;
+use KwaiShopSDK\Api\Shop\OpenScoreMasterGet;
+use KwaiShopSDK\KwaiShopClient;
 
 $config = new Config(
     appKey: 'your-app-key',
@@ -57,14 +59,23 @@ $config = new Config(
 
 $client = new KwaiShopClient($config);
 
-$shop = $client->rawRequest(
-    method: 'open.shop.info.get',
-    params: [],
+$shop = (new OpenScoreMasterGet($client))->execute(
     accessToken: 'your-access-token',
 );
 ```
 
-当前 `1.0.0` 聚焦“可稳定复用的 SDK 底座”，资源类入口已经准备好，具体接口方法会在后续版本中逐步补齐。
+当前 `1.0.0` 聚焦“可稳定复用的 SDK 底座”，接口类会按官方文档分类逐步补齐。
+
+如果某个接口类暂未提供，也可以临时使用：
+
+```php
+$response = $client->rawRequest(
+    method: 'open.shop.info.get',
+    params: [],
+    accessToken: 'your-access-token',
+    httpMethod: 'POST',
+);
+```
 
 ## 认证与授权
 
@@ -121,17 +132,17 @@ cp .env.example .env
 
 - `.env.example` 只用于测试场景示例
 - SDK 运行时不会主动读取 `.env`
-- `tests/bootstrap.php` 会在 PHPUnit 与 `tests/manual/*` 脚本执行时加载 `.env`
+- `tests/bootstrap.php` 会在 PHPUnit 与 `tests/Functional/*` 脚本执行时加载 `.env`
 
 ### OAuth 联调脚本
 
 ```bash
-php tests/manual/oauth_flow.php authorize --app-type=self https://your-callback.test/oauth/callback merchant_order,merchant_item local-test
-php tests/manual/oauth_flow.php authorize --app-type=self merchant_order,merchant_item local-test
-php tests/manual/oauth_flow.php authorize --app-type=service-market merchant_order,merchant_item local-test
-php tests/manual/oauth_flow.php exchange YOUR_CODE
-php tests/manual/oauth_flow.php refresh
-php tests/manual/oauth_flow.php client-token
+php tests/Functional/oauth_flow.php authorize --app-type=self https://your-callback.test/oauth/callback merchant_order,merchant_item local-test
+php tests/Functional/oauth_flow.php authorize --app-type=self merchant_order,merchant_item local-test
+php tests/Functional/oauth_flow.php authorize --app-type=service-market merchant_order,merchant_item local-test
+php tests/Functional/oauth_flow.php exchange YOUR_CODE
+php tests/Functional/oauth_flow.php refresh
+php tests/Functional/oauth_flow.php client-token
 ```
 
 补充说明：
@@ -143,8 +154,8 @@ php tests/manual/oauth_flow.php client-token
 ### 原始接口调试
 
 ```bash
-php tests/manual/api_call.php call open.shop.info.get '{}'
-php tests/manual/api_call.php call open.seller.order.list '{"pageSize":20,"pageNum":1}' YOUR_ACCESS_TOKEN
+php tests/Functional/api_call.php call open.shop.info.get '{}'
+php tests/Functional/api_call.php call open.seller.order.list '{"pageSize":20,"pageNum":1}' YOUR_ACCESS_TOKEN
 ```
 
 如果未显式传入 access token，脚本会回退读取 `.env` 中的 `KWAISHOP_TEST_ACCESS_TOKEN`。
@@ -161,13 +172,13 @@ php tests/manual/api_call.php call open.seller.order.list '{"pageSize":20,"pageN
 - Guzzle 传输层
 - 请求工厂
 - 响应解析器
-- 主客户端与资源式入口
+- 主客户端与声明式 API 入口
 - 基础测试与手动调试脚本
 
 后续计划：
 
 - 逐步补齐快手电商开放平台接口封装
-- 为资源类补充更细颗粒度的方法
+- 按官方文档目录持续补齐 `src/Api/*`
 - 增加更多集成测试与联调示例
 
 ## 开源协议

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $header = <<<'EOF'
-This file is part of Kwaishop PHP SDK.
+This file is part of KwaiShopSDK.
 
 @link     https://github.com/westng/kwaishop-php-sdk
 @document https://github.com/westng/kwaishop-php-sdk

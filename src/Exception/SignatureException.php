@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * This file is part of Kwaishop PHP SDK.
+ * This file is part of KwaiShopSDK.
  *
  * @link     https://github.com/westng/kwaishop-php-sdk
  * @document https://github.com/westng/kwaishop-php-sdk
@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @license  https://github.com/westng/kwaishop-php-sdk/blob/main/LICENSE
  */
 
-namespace Kwaishop\PhpSdk\Exception;
+namespace KwaiShopSDK\Exception;
 
 class SignatureException extends BusinessException
 {

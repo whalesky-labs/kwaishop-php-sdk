@@ -11,12 +11,14 @@ declare(strict_types=1);
  * @license  https://github.com/westng/kwaishop-php-sdk/blob/main/LICENSE
  */
 
-namespace KwaiShopSDK\Support;
+namespace KwaiShopSDK\Core\Http;
 
-final class Clock
+interface TransportInterface
 {
-    public static function currentMilliseconds(): string
-    {
-        return (string) (int) floor(microtime(true) * 1000);
-    }
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array{status:int, headers:array<string, mixed>, body:string}
+     */
+    public function send(string $httpMethod, string $url, array $options = []): array;
 }

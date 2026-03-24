@@ -3,6 +3,24 @@
     "description": "PHP SDK for Kuaishou E-commerce Open Platform.",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "kuaishou",
+        "kwaishop",
+        "ecommerce",
+        "openapi",
+        "sdk",
+        "php"
+    ],
+    "homepage": "https://github.com/westng/kwaishop-php-sdk",
+    "authors": [
+        {
+            "name": "westng"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/westng/kwaishop-php-sdk/issues",
+        "source": "https://github.com/westng/kwaishop-php-sdk"
+    },
     "require": {
         "php": "^8.1",
         "ext-json": "*",
@@ -14,12 +32,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Kwaishop\\PhpSdk\\": "src/"
+            "KwaiShopSDK\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Kwaishop\\PhpSdk\\Tests\\": "tests/"
+            "KwaiShopSDK\\Tests\\": "tests/"
         }
     },
     "scripts": {

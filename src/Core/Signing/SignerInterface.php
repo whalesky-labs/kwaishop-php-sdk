@@ -11,12 +11,14 @@ declare(strict_types=1);
  * @license  https://github.com/westng/kwaishop-php-sdk/blob/main/LICENSE
  */
 
-namespace KwaiShopSDK\Support;
+namespace KwaiShopSDK\Core\Signing;
 
-final class Clock
+interface SignerInterface
 {
-    public static function currentMilliseconds(): string
-    {
-        return (string) (int) floor(microtime(true) * 1000);
-    }
+    /**
+     * @param array<string, scalar|null> $parameters
+     */
+    public function sign(array $parameters, string $signSecret): string;
+
+    public function name(): string;
 }

@@ -1,4 +1,4 @@
-# Kwaishop PHP SDK
+# KwaiShopSDK
 
 [简体中文](README.md) | [English](README.en.md)
 
@@ -10,7 +10,7 @@
 
 ## Overview
 
-In an era of rapid technological growth, the Kwaishop API SDK of the Kuaishou E-commerce Open Platform should have been a practical tool available to all developers. It covers Kuaishou E-commerce related open capabilities. From token acquisition to request packaging and response parsing, every step should help developers integrate efficiently.
+In an era of rapid technological growth, the KwaiShopSDK of the Kuaishou E-commerce Open Platform should have been a practical tool available to all developers. It covers Kuaishou E-commerce related open capabilities. From token acquisition to request packaging and response parsing, every step should help developers integrate efficiently.
 
 Its localized design should have created a smoother path for developers of all experience levels, allowing them to move through API integration with far less friction. Yet the reality is surprising: in the highly active and mature PHP ecosystem, there is still no official PHP SDK.
 
@@ -29,8 +29,9 @@ Official docs:
 - Unified `Config` object
 - OAuth support for authorize URL building, code exchange, token refresh, and `client_credentials`
 - Shared request factory and response parser
-- Resource entry points: `orders()`, `items()`, `afterSales()`, `logistics()`, `shop()`
-- Low-level `rawRequest()` fallback for direct API calls
+- API implementations organized by documentation category under `src/Api/*`
+- Standard request primitives: `get()`, `post()`, `postJson()`, `upload()`
+- Low-level `rawRequest()` fallback for gateway calls
 - PHPUnit test foundation and manual debug scripts
 
 ## Installation
@@ -46,8 +47,9 @@ composer require westng/kwaishop-php-sdk
 
 declare(strict_types=1);
 
-use Kwaishop\PhpSdk\Config\Config;
-use Kwaishop\PhpSdk\KwaiShopClient;
+use KwaiShopSDK\Core\Profile\Config;
+use KwaiShopSDK\Api\Shop\OpenScoreMasterGet;
+use KwaiShopSDK\KwaiShopClient;
 
 $config = new Config(
     appKey: 'your-app-key',
@@ -57,14 +59,23 @@ $config = new Config(
 
 $client = new KwaiShopClient($config);
 
-$shop = $client->rawRequest(
-    method: 'open.shop.info.get',
-    params: [],
+$shop = (new OpenScoreMasterGet($client))->execute(
     accessToken: 'your-access-token',
 );
 ```
 
-Version `1.0.0` focuses on the SDK foundation first. Resource entry points are ready, and concrete endpoint wrappers will be added incrementally in later releases.
+Version `1.0.0` focuses on the SDK foundation first. Endpoint classes will be added incrementally by official documentation category.
+
+If an endpoint class is not available yet, you can temporarily call:
+
+```php
+$response = $client->rawRequest(
+    method: 'open.shop.info.get',
+    params: [],
+    accessToken: 'your-access-token',
+    httpMethod: 'POST',
+);
+```
 
 ## Authentication
 
@@ -121,17 +132,17 @@ Notes:
 
 - `.env.example` is only a template for test scenarios
 - The SDK runtime does not read `.env`
-- `tests/bootstrap.php` loads `.env` for PHPUnit and `tests/manual/*` scripts
+- `tests/bootstrap.php` loads `.env` for PHPUnit and `tests/Functional/*` scripts
 
 ### OAuth helper
 
 ```bash
-php tests/manual/oauth_flow.php authorize --app-type=self https://your-callback.test/oauth/callback merchant_order,merchant_item local-test
-php tests/manual/oauth_flow.php authorize --app-type=self merchant_order,merchant_item local-test
-php tests/manual/oauth_flow.php authorize --app-type=service-market merchant_order,merchant_item local-test
-php tests/manual/oauth_flow.php exchange YOUR_CODE
-php tests/manual/oauth_flow.php refresh
-php tests/manual/oauth_flow.php client-token
+php tests/Functional/oauth_flow.php authorize --app-type=self https://your-callback.test/oauth/callback merchant_order,merchant_item local-test
+php tests/Functional/oauth_flow.php authorize --app-type=self merchant_order,merchant_item local-test
+php tests/Functional/oauth_flow.php authorize --app-type=service-market merchant_order,merchant_item local-test
+php tests/Functional/oauth_flow.php exchange YOUR_CODE
+php tests/Functional/oauth_flow.php refresh
+php tests/Functional/oauth_flow.php client-token
 ```
 
 Notes:
@@ -143,8 +154,8 @@ Notes:
 ### Raw API helper
 
 ```bash
-php tests/manual/api_call.php call open.shop.info.get '{}'
-php tests/manual/api_call.php call open.seller.order.list '{"pageSize":20,"pageNum":1}' YOUR_ACCESS_TOKEN
+php tests/Functional/api_call.php call open.shop.info.get '{}'
+php tests/Functional/api_call.php call open.seller.order.list '{"pageSize":20,"pageNum":1}' YOUR_ACCESS_TOKEN
 ```
 
 If the access token argument is omitted, the script falls back to `KWAISHOP_TEST_ACCESS_TOKEN` from `.env`.
@@ -161,13 +172,13 @@ Completed:
 - Guzzle transport layer
 - Request factory
 - Response parser
-- Main client and resource entry points
+- Main client and declarative API entry points
 - Base tests and manual debug helpers
 
 Planned next:
 
 - Incrementally wrap more Kuaishou E-commerce Open Platform endpoints
-- Add more granular methods on resource classes
+- Continue filling `src/Api/*` by official documentation category
 - Expand integration-style tests and debug examples
 
 ## License
