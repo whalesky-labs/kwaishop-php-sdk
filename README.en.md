@@ -188,6 +188,18 @@ The SDK currently provides these OAuth capabilities:
 - Refresh tokens with `refreshAccessToken()`
 - Get application tokens with `getClientCredentialsToken()`
 
+These methods are called through the OAuth helper returned by `$client->oauth()`, for example:
+
+```php
+$oauth = $client->oauth();
+
+$authorizeUrl = $oauth->buildAuthorizeUrl(
+    'https://your-callback.test/oauth/callback',
+    ['merchant_order', 'merchant_item'],
+    'your-state'
+);
+```
+
 If you need local OAuth verification or functional debugging, you can still combine these capabilities with the repository test scripts separately.
 
 ## FAQ
@@ -215,6 +227,14 @@ Start by checking the matching category under `src/Api/*`. Class names usually s
 ## Contribution Guide
 
 - Issues are welcome for bug reports, missing endpoint requests, and documentation improvements
+The repository includes Chinese issue forms and automated issue comments with the following behavior:
+
+- New issues receive a welcome and triage message automatically
+- Bug-like issues with incomplete details receive a reminder to add SDK version, PHP version, reproduction steps, and error output
+- Applying configured labels triggers an automatic reply
+- Long-inactive issues receive follow-up comments automatically
+- Closed issues receive a thank-you comment automatically
+- The bot does not close issues automatically
 - Before opening a PR, keep the change scope clear and avoid mixing unrelated edits
 - When adding a new endpoint, place it under the matching official documentation category in `src/Api/*`
 - Keep naming, directory structure, and SDK style consistent with the existing project

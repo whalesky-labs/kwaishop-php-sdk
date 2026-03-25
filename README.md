@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Composer](https://img.shields.io/badge/Composer-westng%2Fkwaishop--php--sdk-885630?logo=composer)](https://packagist.org/packages/westng/kwaishop-php-sdk)
 
-> 🚀 **快手电商 PHP SDK** - 为 PHP 开发者提供完整的快手电商 API 集成解决方案 
+> 🚀 **快手电商 PHP SDK** - 为 PHP 开发者提供完整的快手电商 API 集成解决方案
 
 ## 概述
 
@@ -188,6 +188,18 @@ SDK 当前提供的 OAuth 能力包括：
 - 刷新 token：`refreshAccessToken()`
 - 获取应用 token：`getClientCredentialsToken()`
 
+以上方法通过 `$client->oauth()` 返回的 OAuth 客户端调用，例如：
+
+```php
+$oauth = $client->oauth();
+
+$authorizeUrl = $oauth->buildAuthorizeUrl(
+    'https://your-callback.test/oauth/callback',
+    ['merchant_order', 'merchant_item'],
+    'your-state'
+);
+```
+
 如果你需要本地联调 OAuth 或功能测试，可以再结合项目中的测试脚本使用。
 
 ## 常见问题
@@ -215,7 +227,8 @@ SDK 当前提供的 OAuth 能力包括：
 ## 贡献指南
 
 - 欢迎通过 Issue 提交 Bug 反馈、接口补充建议或文档改进建议
-- 仓库已内置中文 Issue 表单与自动评论机器人，规则如下：
+仓库已内置中文 Issue 表单与自动评论机器人，规则如下：
+
 - 新建 Issue 时会先发送欢迎与分流提示
 - Bug 类 Issue 信息不完整时会提醒补充 SDK 版本、PHP 版本、复现步骤与报错信息
 - 命中指定 Label 时会自动回复对应说明
