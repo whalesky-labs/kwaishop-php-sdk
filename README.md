@@ -136,48 +136,29 @@ try {
 
 ## Hyperf 集成（推荐）
 
-如果你的项目运行在 `Hyperf / Swoole Coroutine` 场景，推荐通过容器统一注册 `KwaiShopClient`，避免在业务代码里重复拼接凭据和运行时配置。
-
-先创建业务配置文件，例如 `config/autoload/kwaishop.php`：
+如果你的项目运行在 `Hyperf / Swoole Coroutine` 场景，建议在项目里封装一个初始化类，统一管理凭据和运行时选项，业务代码只拿现成客户端。
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-use function Hyperf\Support\env;
-
-return [
-    'app_key' => env('KWAISHOP_APP_KEY', ''),
-    'app_secret' => env('KWAISHOP_APP_SECRET', ''),
-    'sign_secret' => env('KWAISHOP_SIGN_SECRET', ''),
-    'access_token' => env('KWAISHOP_ACCESS_TOKEN', ''),
-    'options' => [
-        'connectTimeout' => 5.0,
-        'readTimeout' => 10.0,
-        'autoDetectRuntime' => true,
-    ],
-];
-```
-
-再在 `config/autoload/dependencies.php` 中注册客户端：
-
-```php
-<?php
-
-declare(strict_types=1);
+namespace App\Support;
 
 use Hyperf\Contract\ConfigInterface;
 use KwaiShopSDK\Client\KwaiShopClient;
-use Psr\Container\ContainerInterface;
 
-return [
-    KwaiShopClient::class => static function (ContainerInterface $container): KwaiShopClient {
-        $config = $container->get(ConfigInterface::class)->get('kwaishop', []);
+final class KwaiShopClientFactory
+{
+    public function __construct(
+        private readonly ConfigInterface $config,
+    ) {
+    }
+
+    public function make(?string $accessToken = null): KwaiShopClient
+    {
+        $config = $this->config->get('kwaishop', []);
         $options = is_array($config['options'] ?? null) ? $config['options'] : [];
 
-        if (($config['access_token'] ?? '') !== '') {
-            $options['accessToken'] = $config['access_token'];
+        $token = $accessToken ?? ($config['access_token'] ?? null);
+        if (is_string($token) && $token !== '') {
+            $options['accessToken'] = $token;
         }
 
         return new KwaiShopClient(
@@ -186,39 +167,11 @@ return [
             (string) ($config['sign_secret'] ?? ''),
             $options
         );
-    },
-];
-```
-
-业务代码里直接注入即可：
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Service;
-
-use KwaiShopSDK\Client\KwaiShopClient;
-
-final class ShopService
-{
-    public function __construct(
-        private readonly KwaiShopClient $client,
-    ) {
-    }
-
-    public function getShopInfo(): array
-    {
-        return $this->client
-            ->OpenShopInfoGet()
-            ->setParams([])
-            ->send();
     }
 }
 ```
 
-如果你的 Hyperf 项目已经自行管理协程 hook、连接池或运行时策略，可以把 `options.autoDetectRuntime` 设为 `false`，避免 SDK 再做自动识别。
+这样业务层只需要依赖这个工厂；如果你的 Hyperf 项目已经自行管理协程 hook 或运行时策略，可以在 `options` 中把 `autoDetectRuntime` 设为 `false`。
 
 ## 运行环境
 

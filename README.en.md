@@ -136,48 +136,29 @@ Version `1.0.0` already includes the reusable SDK foundation and endpoint wrappe
 
 ## Hyperf Integration (Recommended)
 
-If your project runs on `Hyperf / Swoole Coroutine`, the recommended approach is to register `KwaiShopClient` once in the container so credential and runtime configuration stay centralized instead of being rebuilt in application code.
-
-Start with a dedicated config file such as `config/autoload/kwaishop.php`:
+If your project runs on `Hyperf / Swoole Coroutine`, a practical approach is to wrap client initialization in one factory so credentials and runtime options stay centralized and your application code only consumes ready-made clients.
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-use function Hyperf\Support\env;
-
-return [
-    'app_key' => env('KWAISHOP_APP_KEY', ''),
-    'app_secret' => env('KWAISHOP_APP_SECRET', ''),
-    'sign_secret' => env('KWAISHOP_SIGN_SECRET', ''),
-    'access_token' => env('KWAISHOP_ACCESS_TOKEN', ''),
-    'options' => [
-        'connectTimeout' => 5.0,
-        'readTimeout' => 10.0,
-        'autoDetectRuntime' => true,
-    ],
-];
-```
-
-Then register the client in `config/autoload/dependencies.php`:
-
-```php
-<?php
-
-declare(strict_types=1);
+namespace App\Support;
 
 use Hyperf\Contract\ConfigInterface;
 use KwaiShopSDK\Client\KwaiShopClient;
-use Psr\Container\ContainerInterface;
 
-return [
-    KwaiShopClient::class => static function (ContainerInterface $container): KwaiShopClient {
-        $config = $container->get(ConfigInterface::class)->get('kwaishop', []);
+final class KwaiShopClientFactory
+{
+    public function __construct(
+        private readonly ConfigInterface $config,
+    ) {
+    }
+
+    public function make(?string $accessToken = null): KwaiShopClient
+    {
+        $config = $this->config->get('kwaishop', []);
         $options = is_array($config['options'] ?? null) ? $config['options'] : [];
 
-        if (($config['access_token'] ?? '') !== '') {
-            $options['accessToken'] = $config['access_token'];
+        $token = $accessToken ?? ($config['access_token'] ?? null);
+        if (is_string($token) && $token !== '') {
+            $options['accessToken'] = $token;
         }
 
         return new KwaiShopClient(
@@ -186,39 +167,11 @@ return [
             (string) ($config['sign_secret'] ?? ''),
             $options
         );
-    },
-];
-```
-
-Your application service can then rely on constructor injection directly:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Service;
-
-use KwaiShopSDK\Client\KwaiShopClient;
-
-final class ShopService
-{
-    public function __construct(
-        private readonly KwaiShopClient $client,
-    ) {
-    }
-
-    public function getShopInfo(): array
-    {
-        return $this->client
-            ->OpenShopInfoGet()
-            ->setParams([])
-            ->send();
     }
 }
 ```
 
-If your Hyperf project already manages coroutine hooks, pooling, or runtime policy on its own, set `options.autoDetectRuntime` to `false` so the SDK does not try to auto-detect the runtime again.
+Your application layer can then depend on this factory. If your Hyperf project already manages coroutine hooks or runtime policy on its own, set `autoDetectRuntime` to `false` inside `options`.
 
 ## Runtime Compatibility
 
