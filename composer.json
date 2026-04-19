@@ -14,15 +14,15 @@
         "swoole",
         "coroutine"
     ],
-    "homepage": "https://github.com/westng/kwaishop-php-sdk",
+    "homepage": "https://github.com/whalesky-labs/kwaishop-php-sdk",
     "authors": [
         {
             "name": "westng"
         }
     ],
     "support": {
-        "issues": "https://github.com/westng/kwaishop-php-sdk/issues",
-        "source": "https://github.com/westng/kwaishop-php-sdk"
+        "issues": "https://github.com/whalesky-labs/kwaishop-php-sdk/issues",
+        "source": "https://github.com/whalesky-labs/kwaishop-php-sdk"
     },
     "require": {
         "php": "^8.1",
