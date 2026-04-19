@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       release_as:
-        description: Release type override
+        description: 发版类型；建议默认用 auto 自动判断，也可手动指定 patch、minor、major
         required: true
         default: auto
         type: choice
@@ -14,27 +14,27 @@ on:
           - minor
           - major
       initial_version:
-        description: First release version if no tag exists
+        description: 首次发版版本号；仅在仓库还没有任何 v* tag 时生效
         required: true
         default: v1.0.0
         type: string
       prerelease:
-        description: Mark this release as prerelease
+        description: 是否标记为预发布版本
         required: true
         default: false
         type: boolean
       notes_en:
-        description: English release notes in Markdown, supports \n
+        description: 英文发布说明，支持 Markdown；如不方便换行可使用 \n
         required: false
         default: ''
         type: string
       notes_zh:
-        description: Chinese release notes in Markdown, supports \n
+        description: 中文发布说明，支持 Markdown；如不方便换行可使用 \n
         required: false
         default: ''
         type: string
       dry_run:
-        description: Preview only without creating tag or release
+        description: 仅预览本次发版结果，不创建 tag 和 GitHub Release
         required: true
         default: false
         type: boolean
