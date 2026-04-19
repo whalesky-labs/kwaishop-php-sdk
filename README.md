@@ -332,11 +332,10 @@ $authorizeUrl = $oauth->buildAuthorizeUrl(
 - `release_as` 建议保持默认 `auto`：`feat` 自动升级次版本，`BREAKING CHANGE:` 或 `type!:` 自动升级大版本，其余提交默认升级补丁版本
 - `initial_version` 仅在仓库还没有任何 `v*` tag 时生效，默认首个版本为 `v1.0.0`
 - `prerelease` 可用于标记预发布版本，`dry_run` 可先预览本次将生成的版本号而不真正创建 tag 和 Release
-- `notes_en` 与 `notes_zh` 用于手动填写英文/中文 Release Notes，支持 Markdown；如果 Actions 表单不方便换行，可使用字面量 `\n`
+- 发布说明默认从 `.github/release-notes.md` 读取，也可通过 `notes_file` 指定其他 Markdown 文件路径
 - Release 标题固定为版本号，例如 `v1.2.3`
-- Release Notes 采用双语结构：每段顶部版本号自动生成，中间正文由 `notes_en` / `notes_zh` 手动填写，末尾 `Contributors` / `贡献者` 自动生成
+- Release Notes 采用中文单栏结构：顶部版本号自动生成，中间正文读取发布说明文件，末尾 `贡献者` 自动生成
 - `Contributors` 会自动汇总发版范围内的 PR 作者；如果没有 PR，则回退为提交作者
-- 如果未填写 `notes_en` 或 `notes_zh`，工作流会回退为自动汇总的变更列表
 
 ## 运行测试
 

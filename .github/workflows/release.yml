@@ -23,15 +23,10 @@ on:
         required: true
         default: false
         type: boolean
-      notes_en:
-        description: 英文发布说明，支持 Markdown；如不方便换行可使用 \n
-        required: false
-        default: ''
-        type: string
-      notes_zh:
-        description: 中文发布说明，支持 Markdown；如不方便换行可使用 \n
-        required: false
-        default: ''
+      notes_file:
+        description: 发布说明文件路径；默认读取 .github/release-notes.md
+        required: true
+        default: .github/release-notes.md
         type: string
       dry_run:
         description: 仅预览本次发版结果，不创建 tag 和 GitHub Release
@@ -207,8 +202,7 @@ jobs:
           LAST_TAG: ${{ steps.version.outputs.last_tag }}
           NEXT_VERSION: ${{ steps.version.outputs.next_version }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          NOTES_EN: ${{ inputs.notes_en }}
-          NOTES_ZH: ${{ inputs.notes_zh }}
+          NOTES_FILE: ${{ inputs.notes_file }}
         with:
           script: |
             const fs = require('fs');
@@ -219,18 +213,19 @@ jobs:
             const lastTag = process.env.LAST_TAG || '';
             const nextVersion = process.env.NEXT_VERSION;
             const defaultBranch = process.env.DEFAULT_BRANCH;
-            const rawNotesEn = process.env.NOTES_EN || '';
-            const rawNotesZh = process.env.NOTES_ZH || '';
+            const notesFile = (process.env.NOTES_FILE || '.github/release-notes.md').trim();
 
-            const normalizeInput = (value) => {
-              return value
-                .replace(/\r\n/g, '\n')
-                .replace(/\\n/g, '\n')
-                .trim();
-            };
+            if (!fs.existsSync(notesFile)) {
+              core.setFailed(`发布说明文件不存在：${notesFile}`);
+              return;
+            }
 
-            const notesEn = normalizeInput(rawNotesEn);
-            const notesZh = normalizeInput(rawNotesZh);
+            const notesBody = fs.readFileSync(notesFile, 'utf8').trim();
+
+            if (!notesBody) {
+              core.setFailed(`发布说明文件内容为空：${notesFile}`);
+              return;
+            }
 
             const range = lastTag ? `${lastTag}..HEAD` : 'HEAD';
             const shas = execSync(`git log --format=%H ${range}`, { encoding: 'utf8' })
@@ -267,13 +262,9 @@ jobs:
             });
 
             const contributors = new Map();
-            const autoChangeLines = [];
-
             if (orderedPullRequests.length > 0) {
               for (const pr of orderedPullRequests) {
                 const login = pr.user?.login;
-
-                autoChangeLines.push(`- ${pr.title} by @${login} in #${pr.number}`);
 
                 if (login) {
                   contributors.set(login, `@${login}`);
@@ -297,8 +288,6 @@ jobs:
                 const authorName = data.commit.author?.name;
                 const authorDisplay = login ? `@${login}` : authorName;
 
-                autoChangeLines.push(`- ${subject}${authorDisplay ? ` by ${authorDisplay}` : ''}`);
-
                 if (authorDisplay) {
                   contributors.set(authorDisplay, authorDisplay);
                 }
@@ -309,40 +298,17 @@ jobs:
               return left.localeCompare(right);
             });
 
-            const englishBody = notesEn || [
-              'No manual English release notes were provided.',
-              '',
-              'Auto-detected changes:',
-              ...(autoChangeLines.length > 0 ? autoChangeLines : ['- No user-facing changes in this release']),
-            ].join('\n');
-
-            const chineseBody = notesZh || [
-              '未填写中文发布说明。',
-              '',
-              '自动识别到的变更：',
-              ...(autoChangeLines.length > 0 ? autoChangeLines : ['- 本次发布暂无用户可感知的变更']),
-            ].join('\n');
-
             const markdown = [
               `🚀 ${nextVersion}`,
               '',
-              englishBody,
-              '',
-              '## Contributors',
-              ...(contributorLines.length > 0 ? contributorLines.map((line) => `- ${line}`) : ['- None']),
-              '',
-              '---',
-              '',
-              `🚀 ${nextVersion}`,
-              '',
-              chineseBody,
+              notesBody,
               '',
               '## 贡献者',
               ...(contributorLines.length > 0 ? contributorLines.map((line) => `- ${line}`) : ['- 无']),
               '',
             ].join('\n');
 
-            const notesPath = '.github/release-notes.md';
+            const notesPath = '.github/release-notes.generated.md';
             fs.writeFileSync(notesPath, markdown, 'utf8');
 
             core.setOutput('path', notesPath);

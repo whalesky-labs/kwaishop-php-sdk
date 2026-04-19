@@ -332,11 +332,10 @@ The repository includes Chinese issue forms and automated issue comments with th
 - Keep `release_as` on the default `auto` in most cases: `feat` bumps the minor version, `BREAKING CHANGE:` or `type!:` bumps the major version, and all other commits fall back to a patch release
 - `initial_version` is only used when the repository has no `v*` tag yet, and the default first release is `v1.0.0`
 - Use `prerelease` to mark preview builds, and `dry_run` to preview the computed version without creating a tag or GitHub Release
-- Use `notes_en` and `notes_zh` to provide manual English and Chinese Release Notes in Markdown; if the Actions form is inconvenient for line breaks, enter literal `\n`
+- Release notes are loaded from `.github/release-notes.md` by default, and you can override the path with `notes_file`
 - The Release title is always the resolved version number, for example `v1.2.3`
-- The Release Notes use a bilingual layout: each section gets an automatic version heading, the middle content comes from manual `notes_en` / `notes_zh` input, and the trailing `Contributors` / `贡献者` sections are generated automatically
+- The Release Notes now use a Chinese-only layout: the version heading is generated automatically, the body comes from the release notes file, and the trailing `贡献者` section is generated automatically
 - `Contributors` are collected automatically from PR authors in the release range, or from commit authors when no PRs are found
-- If `notes_en` or `notes_zh` is left empty, the workflow falls back to an auto-generated change list
 
 ## Run Tests
 
