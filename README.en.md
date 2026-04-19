@@ -1,10 +1,28 @@
-# KwaiShopSDK
+<p align="center">
+  <img src="https://avatars.githubusercontent.com/u/277389313?s=200&v=4" width="128" height="128" alt="KwaiShopSDK">
+</p>
 
-[简体中文](README.md) | [English](README.en.md)
+<h1 align="center">KwaiShopSDK</h1>
 
-[![PHP Version](https://img.shields.io/badge/PHP-%3E%3D8.1-777BB4?logo=php)](composer.json)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Composer](https://img.shields.io/badge/Composer-whalesky--labs%2Fkwaishop--php--sdk-885630?logo=composer)](https://packagist.org/packages/whalesky-labs/kwaishop-php-sdk)
+<p align="center">
+  PHP SDK for the Kuaishou E-commerce Open Platform.
+</p>
+
+<p align="center">
+  PHP SDK &middot; Kuaishou E-commerce Open Platform &middot; Composer Package &middot; API Integration
+</p>
+
+<p align="center">
+  <a href="composer.json"><img src="https://img.shields.io/badge/PHP-%3E%3D8.1-777BB4?logo=php" alt="PHP Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
+  <a href="https://packagist.org/packages/whalesky-labs/kwaishop-php-sdk"><img src="https://img.shields.io/badge/Composer-whalesky--labs%2Fkwaishop--php--sdk-885630?logo=composer" alt="Composer"></a>
+</p>
+
+<p align="center">
+  English | <a href="README.md">简体中文</a>
+</p>
+
+---
 
 > 🚀 **Kuaishou E-commerce PHP SDK** - A complete Kuaishou E-commerce API integration solution for PHP developers
 
