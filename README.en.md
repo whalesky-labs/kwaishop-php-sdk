@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-%3E%3D8.1-777BB4?logo=php)](composer.json)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Composer](https://img.shields.io/badge/Composer-westng%2Fkwaishop--php--sdk-885630?logo=composer)](https://packagist.org/packages/westng/kwaishop-php-sdk)
+[![Composer](https://img.shields.io/badge/Composer-whalesky--labs%2Fkwaishop--php--sdk-885630?logo=composer)](https://packagist.org/packages/whalesky-labs/kwaishop-php-sdk)
 
 > 🚀 **Kuaishou E-commerce PHP SDK** - A complete Kuaishou E-commerce API integration solution for PHP developers
 
@@ -93,7 +93,7 @@ Notes:
 ## Installation
 
 ```bash
-composer require westng/kwaishop-php-sdk
+composer require whalesky-labs/kwaishop-php-sdk
 ```
 
 ## Quick Start

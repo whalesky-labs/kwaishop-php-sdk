@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-%3E%3D8.1-777BB4?logo=php)](composer.json)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Composer](https://img.shields.io/badge/Composer-westng%2Fkwaishop--php--sdk-885630?logo=composer)](https://packagist.org/packages/westng/kwaishop-php-sdk)
+[![Composer](https://img.shields.io/badge/Composer-whalesky--labs%2Fkwaishop--php--sdk-885630?logo=composer)](https://packagist.org/packages/whalesky-labs/kwaishop-php-sdk)
 
 > 🚀 **快手电商 PHP SDK** - 为 PHP 开发者提供完整的快手电商 API 集成解决方案
 
@@ -93,7 +93,7 @@ src/
 ## 安装
 
 ```bash
-composer require westng/kwaishop-php-sdk
+composer require whalesky-labs/kwaishop-php-sdk
 ```
 
 ## 快速开始

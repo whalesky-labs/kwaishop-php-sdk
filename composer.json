@@ -1,5 +1,5 @@
 {
-    "name": "westng/kwaishop-php-sdk",
+    "name": "whalesky-labs/kwaishop-php-sdk",
     "description": "PHP SDK for Kuaishou E-commerce Open Platform.",
     "type": "library",
     "license": "MIT",
